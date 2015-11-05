@@ -1,0 +1,95 @@
+rule login
+get https://www.chase.com/
+match_id usr_name_home
+send_keys USERNAME
+match_id usr_password_home
+send_keys_prompt_password Account Password
+send_special_key ENTER
+wait_url_change
+
+rule second_factor_auth
+match_partial_url SecAuthInformation
+match_id NextButton
+click
+match_id usrCtrlOtp_rdoDelMethod1
+click
+match_id NextButton
+click
+match_id usrCtrlOtp_txtActivationCode
+send_keys_prompt Enter Activation Code From Email
+match_id usrCtrlOtp_txtPassword
+send_keys_prompt_password Account Password
+send_special_key ENTER
+
+rule account_0000
+match_link_text CREDIT CARD (...0000)
+match_within_xpath ../../../../../following-sibling::table
+match_within_partial_link_text See activity
+click
+wait_url_change
+
+rule account_info_0000
+match_xpath //caption[contains(.,'Account Info')]
+match_within_xpath ../..
+match_multiple_within_tag_name tr
+export_text
+match_xpath //caption[contains(.,'Payment Info')]
+match_within_xpath ../..
+match_multiple_within_tag_name tr
+export_text
+
+rule temporary_authorizations_0000
+match_multiple_xpath //span[text()='Temporary Authorizations']
+match_within_xpath ../../following-sibling::div/following-sibling::div/table
+match_multiple_within_tag_name tr
+export_text
+
+rule change_statement_to_all_0000
+match_id StatementPeriodQuick
+select_by_value ALL
+match_multiple_xpath /html/body/img[contains(@src,"loading")]
+wait_until_gone
+
+rule transactions_0000
+match_xpath //span[text()='Posted Activity']
+match_within_xpath ../../../following-sibling::div/following-sibling::div/following-sibling::div/table
+match_multiple_within_tag_name tr
+export_text
+
+rule go_back
+back
+
+rule account_0001
+match_link_text CREDIT CARD (...0001)
+match_within_xpath ../../../../../following-sibling::table
+match_within_partial_link_text See activity
+click
+wait_url_change
+
+rule account_info_0001
+match_xpath //caption[contains(.,'Account Info')]
+match_within_xpath ../..
+match_multiple_within_tag_name tr
+export_text
+match_xpath //caption[contains(.,'Payment Info')]
+match_within_xpath ../..
+match_multiple_within_tag_name tr
+export_text
+
+rule temporary_authorizations_0001
+match_multiple_xpath //span[text()='Temporary Authorizations']
+match_within_xpath ../../following-sibling::div/following-sibling::div/table
+match_multiple_within_tag_name tr
+export_text
+
+rule change_statement_to_all_0001
+match_id StatementPeriodQuick
+select_by_value ALL
+match_multiple_xpath /html/body/img[contains(@src,"loading")]
+wait_until_gone
+
+rule transactions_0001
+match_xpath //span[text()='Posted Activity']
+match_within_xpath ../../../following-sibling::div/following-sibling::div/following-sibling::div/table
+match_multiple_within_tag_name tr
+export_text

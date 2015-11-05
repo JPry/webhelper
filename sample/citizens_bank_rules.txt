@@ -1,0 +1,52 @@
+rule login
+get https://www.citizensbank.com/
+match_link_text LOGIN
+click
+match_name UserID
+send_keys USERNAME
+submit
+wait_url_change
+switch_to_frame 0
+
+rule q1
+match_xpath //*[@id="CheckQuestion"]/label
+match_within_text In what city were you born? (Enter full name of city only)
+match_within_xpath ../input[2]
+send_keys ANSWER_TO_CITY_QUESTION
+
+rule q2
+match_xpath //*[@id="CheckQuestion"]/label
+match_within_text What was the first name of your first manager?
+match_within_xpath ../input[2]
+send_keys ANSWER_TO_MANAGER_QUESTION
+
+rule q3
+match_xpath //*[@id="CheckQuestion"]/label
+match_within_text What is your father's middle name?
+match_within_xpath ../input[2]
+send_keys ANSWER_TO_MIDDLE_NAME_QUESTION
+
+rule password
+match_id RSAIdentifyBtn
+click
+match_id currentpassword
+send_keys_prompt_password Account Password
+match_id btnLoginAccept
+click
+
+rule account_checking
+match_link_text Green Checking
+click
+wait_url_change
+
+rule account_balance_checking
+match_xpath //*[@id="balances"]/fieldset/legend
+match_within_text Account Summary
+match_within_xpath ../div[1]/input
+export_attribute value
+
+rule transactions_checking
+match_xpath //td[text()='Transaction History']
+match_within_xpath ../../../../table[4]
+match_multiple_within_tag_name tr
+export_text
