@@ -187,7 +187,7 @@ def main():
 
         # Check for new rows
         for ind, row in enumerate(rows[1:]):
-            if not lresolved.has_key(ind):
+            if not rresolved.has_key(ind):
                 data_rows_diff.append(["Add"] + row)
                 # Add blank spots to end of row if we are in the special Date/Amount/Note case
                 if len(data_rows_diff[-1]) < len(data_rows_diff[0]):
