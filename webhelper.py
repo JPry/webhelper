@@ -1,11 +1,12 @@
-import selenium.webdriver.support.select
-from selenium.webdriver.common.keys import Keys
 import time
 import getpass
 
+import selenium.webdriver.support.select
+from selenium.webdriver.common.keys import Keys
 
-#import logging
-#logging.basicConfig(level=logging.DEBUG)
+
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
 
 def parse_rules(st):
     lines = st.split('\n')
@@ -14,21 +15,22 @@ def parse_rules(st):
     for line in lines:
         if line.startswith('rule '):
             rulename = line[5:]
-            ruleset.append({'name':rulename, 'steps':[]})
+            ruleset.append({'name': rulename, 'steps': []})
         elif not line:
             rulename = None
         elif line.strip().startswith('#'):
             continue
         elif rulename:
             if line.find(' ') > 0:
-                ruleset[-1]['steps'].append({'command': line[:line.find(' ')], 'param': line[line.find(' ')+1:]})
+                ruleset[-1]['steps'].append({'command': line[:line.find(' ')], 'param': line[line.find(' ') + 1:]})
             else:
                 ruleset[-1]['steps'].append({'command': line})
         else:
             raise Exception("No rule defined")
     return ruleset
 
-def run_rule(driver, rule, verbose = False):
+
+def run_rule(driver, rule, verbose=False):
     return_val = False
     current_element = None
     url_history = []
@@ -42,7 +44,8 @@ def run_rule(driver, rule, verbose = False):
                 current_element = current_element[0]
 
             found_command = False
-            for etype in ['link_text', 'xpath', 'id', 'name', 'css_selector', 'partial_link_text', 'tag_name', 'class_name']:
+            for etype in ['link_text', 'xpath', 'id', 'name', 'css_selector', 'partial_link_text', 'tag_name',
+                          'class_name']:
                 if s['command'] == 'match_' + etype:
                     current_element = getattr(driver, 'find_element_by_' + etype)(s['param'])
                     if not current_element:
@@ -93,7 +96,7 @@ def run_rule(driver, rule, verbose = False):
                 found_command = True
 
             if not found_command:
-                raise Exception("Command not found: "+s['command'])
+                raise Exception("Command not found: " + s['command'])
         else:
             # We must now signal at least that we have successfully passed the beginning match commands and proceeded onto non-match commands
             if return_val == False:
@@ -122,7 +125,7 @@ def run_rule(driver, rule, verbose = False):
                 TIMEOUT = 8
                 CHECK_INTERVAL = 0.2
                 return_val = False
-                for ind in range(int(TIMEOUT/CHECK_INTERVAL)):
+                for ind in range(int(TIMEOUT / CHECK_INTERVAL)):
                     # Make sure the past 3 samples have been the same, all different than the comparison url
                     if len(hist) >= 3 and driver.current_url != compare and hist[-1] != compare and hist[-2] != compare and hist[-3] != compare:
                         return_val = True
@@ -145,7 +148,7 @@ def run_rule(driver, rule, verbose = False):
                         TIMEOUT = 20
                         CHECK_INTERVAL = 0.2
                         return_val = False
-                        for ind in range(int(TIMEOUT/CHECK_INTERVAL)):
+                        for ind in range(int(TIMEOUT / CHECK_INTERVAL)):
                             try:
                                 elem.get_attribute("id")
                             except selenium.common.exceptions.StaleElementReferenceException:
@@ -161,9 +164,9 @@ def run_rule(driver, rule, verbose = False):
                     elif s['command'] == 'send_keys':
                         elem.send_keys(s['param'])
                     elif s['command'] == 'send_keys_prompt':
-                        elem.send_keys(raw_input(s['param']+': '))
+                        elem.send_keys(raw_input(s['param'] + ': '))
                     elif s['command'] == 'send_keys_prompt_password':
-                        elem.send_keys(getpass.getpass(s['param']+': '))
+                        elem.send_keys(getpass.getpass(s['param'] + ': '))
                     elif s['command'] == 'send_special_key':
                         elem.send_keys(getattr(Keys, s['param']))
                     elif s['command'] == 'select_by_value':
@@ -186,11 +189,11 @@ def run_rule(driver, rule, verbose = False):
                         else:
                             return_val.append(elem.get_attribute(s['param']))
                     else:
-                        raise Exception("Command not found: "+s['command'])
+                        raise Exception("Command not found: " + s['command'])
 
         # Track the past URLs
         url_history.append(driver.current_url)
         if len(url_history) >= 6:
             url_history = url_history[2:]
-                
+
     return return_val

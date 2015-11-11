@@ -3,6 +3,7 @@ import os
 
 CSV_PATH = os.path.dirname(os.path.realpath(__file__)) + os.sep + "csv_files"
 
+
 class CSVSpreadsheet:
     def __repr__(self):
         return "CSV file with prefix %s" % (self.name,)
@@ -14,7 +15,7 @@ class CSVSpreadsheet:
         if not os.path.exists(CSV_PATH):
             os.mkdir(CSV_PATH)
         f = open(CSV_PATH + os.sep + "%s__%s.csv" % (self.name, sheet_name), "wb")
-        w = csv.writer(f, delimiter=',', quotechar='"', quoting = csv.QUOTE_ALL)
+        w = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
         for row in rows:
             w.writerow(row)
         f.close()

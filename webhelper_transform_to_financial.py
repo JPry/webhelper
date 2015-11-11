@@ -1,10 +1,9 @@
-import time
-import csv
 import sys
 import os
 
 from webhelper import parse_rules
 from webhelper_csv import CSVSpreadsheet
+
 
 def standardize_date(d):
     if len(d) <= 0:
@@ -19,8 +18,10 @@ def standardize_date(d):
         parts[2] += 2000
     return '%0.2d/%0.2d/%d' % (parts[0], parts[1], parts[2])
 
+
 def standardize_amount(am):
-    return am.replace(",","").replace(" ", "").replace("$", "")
+    return am.replace(",", "").replace(" ", "").replace("$", "")
+
 
 def main():
     verbose = False
@@ -32,17 +33,18 @@ def main():
         verbose = True
 
     if '-n' in sys.argv:
-        spreadsheet_name = sys.argv[sys.argv.index('-n')+1]
+        spreadsheet_name = sys.argv[sys.argv.index('-n') + 1]
         sys.argv.remove('-n')
         sys.argv.remove(spreadsheet_name)
 
     if '-r' in sys.argv:
-        webhelper_rulefile = sys.argv[sys.argv.index('-r')+1]
+        webhelper_rulefile = sys.argv[sys.argv.index('-r') + 1]
         sys.argv.remove('-r')
         sys.argv.remove(webhelper_rulefile)
 
     if '-h' in sys.argv or '--help' in sys.argv:
-        print "Usage: %s [-h] [--help] [-v] [--import-google] [--export-google] [-r <webhelper rule file>] [-n <CSV file prefix or spreadsheet name>]" % (sys.argv[0],)
+        print "Usage: %s [-h] [--help] [-v] [--import-google] [--export-google] [-r <webhelper rule file>] [-n <CSV file prefix or spreadsheet name>]" % (
+        sys.argv[0],)
         sys.exit(1)
 
     import_spreadsheet = None
@@ -83,7 +85,7 @@ def main():
             print "Importing %s data from %s" % (rule, import_spreadsheet,)
         rows = import_spreadsheet.import_data(rule)
         if verbose:
-            print "Finished importing %s data from %s" %(rule, import_spreadsheet,)
+            print "Finished importing %s data from %s" % (rule, import_spreadsheet,)
 
         financial_data_rows = []
         if len(rows) > 0:
@@ -94,13 +96,13 @@ def main():
                 # Find whether all cells in this row are alpha numeric.  If any are numeric, this is probably not a header
                 all_alphanum = True
                 for cell in row:
-                    if cell.replace(',','').replace('$', '').replace('.', '').replace(' ', '').isdigit():
+                    if cell.replace(',', '').replace('$', '').replace('.', '').replace(' ', '').isdigit():
                         all_alphanum = False
                         break
                 if not all_alphanum:
                     continue
-                if len(filter(lambda val:val, row)) > max_populated_cells:
-                    max_populated_cells = len(filter(lambda val:val, row))
+                if len(filter(lambda val: val, row)) > max_populated_cells:
+                    max_populated_cells = len(filter(lambda val: val, row))
                     header_index = ind
 
             # If we didn't even find a header with at least 3 columns, that doesn't count as a header
@@ -121,21 +123,24 @@ def main():
                 for ind, cell in enumerate(rows[header_index]):
                     if found_date == None and cell.lower().find("date") >= 0:
                         found_date = ind
-                    elif found_note == None and cell.lower().find("description") >= 0 or cell.lower().find("note") >= 0 or cell.lower().find("memo") >= 0:
+                    elif found_note == None and cell.lower().find("description") >= 0 or cell.lower().find(
+                            "note") >= 0 or cell.lower().find("memo") >= 0:
                         found_note = ind
                     elif found_amount == None and cell.lower().find("amount") >= 0:
                         found_amount = ind
                     elif found_debit == None and cell.lower().find("debit") >= 0:
-                        found_debit = ind                    
+                        found_debit = ind
                     elif found_credit == None and cell.lower().find("credit") >= 0:
-                        found_credit = ind                    
+                        found_credit = ind
             else:
                 for ind, cell in enumerate(rows[0]):
-                    if found_amount == None and cell.replace(',','').replace('$', '').replace('.', '').replace(' ', '').isdigit():
+                    if found_amount == None and cell.replace(',', '').replace('$', '').replace('.', '').replace(' ',
+                                                                                                                '').isdigit():
                         found_amount = ind
                     elif found_date == None and cell.replace('/', '').replace(' ', '').isdigit():
                         found_date = ind
-                    elif found_note == None and not cell.replace(',','').replace('$', '').replace('.', '').replace(' ', '').isdigit():
+                    elif found_note == None and not cell.replace(',', '').replace('$', '').replace('.', '').replace(' ',
+                                                                                                                    '').isdigit():
                         found_note = ind
                 header_index = -1
 
@@ -148,9 +153,9 @@ def main():
                 financial_data_rows[-1].append("Note")
 
             if verbose:
-                print "Built header: "+str(financial_data_rows[-1])
+                print "Built header: " + str(financial_data_rows[-1])
 
-            for row in rows[header_index+1:]:
+            for row in rows[header_index + 1:]:
                 new_row = []
                 if found_date != None:
                     if len(row) > found_date:
@@ -175,7 +180,8 @@ def main():
                         new_row.append("")
 
                 # If date and amount are blank, maybe this is another row of notes
-                if found_note != None and found_date != None and not new_row[0] and (found_amount != None or (found_debit != None and found_credit != None)) and not new_row[-1]:
+                if found_note != None and found_date != None and not new_row[0] and (
+                        found_amount != None or (found_debit != None and found_credit != None)) and not new_row[-1]:
                     if found_note != None and len(row) > found_note and row[found_note]:
                         financial_data_rows[-1][-1] += " " + row[found_note]
                     # Whether there were additional notes or not, let's skip any rows without proper information
@@ -194,8 +200,8 @@ def main():
             print "Exporting %s__financial data to %s" % (rule, export_spreadsheet,)
         export_spreadsheet.export_data(financial_data_rows, "%s__financial" % (rule,))
         if verbose:
-            print "Finished exporting %s__financial data to %s" %(rule, export_spreadsheet,)
+            print "Finished exporting %s__financial data to %s" % (rule, export_spreadsheet,)
+
 
 if __name__ == "__main__":
     main()
-
